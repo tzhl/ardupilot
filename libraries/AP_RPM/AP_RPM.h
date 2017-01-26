@@ -22,8 +22,8 @@
 // Maximum number of RPM measurement instances available on this platform
 #define RPM_MAX_INSTANCES 2
 
-class AP_RPM_Backend; 
- 
+class AP_RPM_Backend;
+
 class AP_RPM
 {
 public:
@@ -34,7 +34,8 @@ public:
     // RPM driver types
     enum RPM_Type {
         RPM_TYPE_NONE    = 0,
-        RPM_TYPE_PX4_PWM = 1
+        RPM_TYPE_PX4_PWM = 1,
+        RPM_TYPE_MAVLINK = 2
     };
 
     // The RPM_State structure is filled in by the backend driver
@@ -42,7 +43,7 @@ public:
         uint8_t                instance;        // the instance number of this RPM
         float                  rate_rpm;        // measured rate in revs per minute
         uint32_t               last_reading_ms; // time of last reading
-        float                  signal_quality;  // synthetic quality metric 
+        float                  signal_quality;  // synthetic quality metric
     };
 
     // parameters for each instance
@@ -53,7 +54,7 @@ public:
     AP_Float _quality_min[RPM_MAX_INSTANCES];
 
     static const struct AP_Param::GroupInfo var_info[];
-    
+
     // Return the number of rpm sensor instances
     uint8_t num_sensors(void) const {
         return num_instances;
@@ -64,6 +65,9 @@ public:
 
     // update state of all rpm sensors. Should be called from main loop
     void update(void);
+
+    // ADDED BY SRIRAM: update all rpm sensors that need an external rpm input
+    void update_from_external(float new_rpm);
 
     /*
       return RPM for a sensor. Return -1 if not healthy
@@ -92,5 +96,5 @@ private:
     uint8_t num_instances:2;
 
     void detect_instance(uint8_t instance);
-    void update_instance(uint8_t instance);  
+    void update_instance(uint8_t instance);
 };

@@ -433,8 +433,7 @@ void NOINLINE Copter::send_rpm(mavlink_channel_t chan)
         mavlink_msg_rpm_send(
             chan,
             rpm_sensor.get_rpm(0),
-            copter.mavlink_rpm
-            //rpm_sensor.get_rpm(1) - REMOVED BY SRIRAM for RPM sensor 2 = mavlink RPM
+            rpm_sensor.get_rpm(1)
             );
     }
 }
@@ -988,11 +987,13 @@ void GCS_MAVLINK_Copter::handleMessage(mavlink_message_t* msg)
 
     switch (msg->msgid) {
 
+    // ADDED BY SRIRAM: Update the external-source RPM sensors from the
+    // info from the RPM message
     case MAVLINK_MSG_ID_RPM:
     {
        mavlink_rpm_t packet;
        mavlink_msg_rpm_decode(msg, &packet);
-       copter.mavlink_rpm = packet.rpm1;
+       copter.rpm_sensor.update_from_external(packet.rpm1);
     }
 
     case MAVLINK_MSG_ID_HEARTBEAT:      // MAV ID: 0

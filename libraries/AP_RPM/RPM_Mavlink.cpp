@@ -13,33 +13,37 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if CONFIG_HAL_BOARD == HAL_BOARD_SITL
-#include "RPM_SITL.h"
+#if CONFIG_HAL_BOARD == HAL_BOARD_PX4 || CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN
 
-extern const AP_HAL::HAL& hal;
+#include "RPM_Mavlink.h"
 
 /*
    open the sensor in constructor
 */
-AP_RPM_SITL::AP_RPM_SITL(AP_RPM &_ap_rpm, uint8_t _instance, AP_RPM::RPM_State &_state) :
-	AP_RPM_Backend(_ap_rpm, _instance, _state)
+AP_RPM_Mavlink::AP_RPM_Mavlink(AP_RPM &_ap_rpm, uint8_t _instance, AP_RPM::RPM_State &_state) :
+    AP_RPM_Backend(_ap_rpm, _instance, _state)
 {
-    sitl = (SITL::SITL *)AP_Param::find_object("SIM_");
     instance = _instance;
 }
 
-void AP_RPM_SITL::update(void)
+void AP_RPM_Mavlink::update(void)
 {
-    if (sitl == nullptr) {
-        return;
-    }
-    if (instance == 0) {
-        state.rate_rpm = sitl->state.rpm1;
-    } else {
-        state.rate_rpm = sitl->state.rpm2;
-    }
+    // Do nothing - we need an external value to do any work!
+    return;
+}
+
+void AP_RPM_Mavlink::update_from_external(float new_rpm)
+{
+    // Update the current state rpm purely from the new value
+    state.rate_rpm = new_rpm;
+
+    // Apply any scaling set in the system
     state.rate_rpm *= ap_rpm._scaling[state.instance];
-    state.signal_quality = 0.5f;
+
+    // Highest signal quality just so that we pass over any filters
+    state.signal_quality = 1.0f;
+
+    // Update last update time (now)
     state.last_reading_ms = AP_HAL::millis();
 }
 

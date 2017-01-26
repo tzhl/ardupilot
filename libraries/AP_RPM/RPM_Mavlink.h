@@ -12,31 +12,30 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+// Author: Sriram Sami
 #pragma once
 
-#include <AP_Common/AP_Common.h>
-#include <AP_HAL/AP_HAL.h>
-#include "AP_RPM.h"
+#if CONFIG_HAL_BOARD == HAL_BOARD_PX4 || CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN
 
-class AP_RPM_Backend
+#include "AP_RPM.h"
+#include "RPM_Backend.h"
+
+class AP_RPM_Mavlink : public AP_RPM_Backend
 {
 public:
-    // constructor. This incorporates initialisation as well.
-	AP_RPM_Backend(AP_RPM &_ap_rpm, uint8_t instance, AP_RPM::RPM_State &_state);
+    // constructor
+    AP_RPM_Mavlink(AP_RPM &ranger, uint8_t instance, AP_RPM::RPM_State &_state);
 
-    // we declare a virtual destructor so that RPM drivers can
-    // override with a custom destructor if need be
-    virtual ~AP_RPM_Backend(void) {}
+    // the function is defined here - but it does nothing when called in
+    // main update loop. This backend needs an external value to work.
+    void update(void);
 
-    // update the state structure. All backends must implement this.
-    virtual void update() = 0;
+    // This is the function to be called from the point in the code that
+    // receives a mavlink message with RPM values
+    void update_from_external(float new_rpm);
 
-    // ADDED BY SRIRAM: update the state rpm structure based
-    // on an external RPM value
-    virtual void update_from_external(float new_rpm) {}
-
-protected:
-
-    AP_RPM &ap_rpm;
-    AP_RPM::RPM_State &state;
+private:
+    uint8_t instance;
 };
+
+#endif
