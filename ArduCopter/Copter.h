@@ -145,9 +145,6 @@ public:
     void loop() override;
 
 private:
-    // ADDED BY SRIRAM: rpm as sent from mavlink
-    float mavlink_rpm;
-
     // key aircraft parameters passed to multiple libraries
     AP_Vehicle::MultiCopter aparm;
 

@@ -33,8 +33,6 @@ Copter::Copter(void) :
 #else
     motors(MAIN_LOOP_RATE),
 #endif
-    // ADDED BY SRIRAM - for mavlink RPM input
-    mavlink_rpm(0),
     scaleLongDown(1),
     wp_bearing(0),
     home_bearing(0),
